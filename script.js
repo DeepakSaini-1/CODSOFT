@@ -1,41 +1,60 @@
-const url = "https://cat-fact.herokuapp.com/facts";
-const factpara = document.querySelector("#fact");
-const btn = document.querySelector("#btn");
+const base_url = "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies"
 
-const getFacts = async () => {
-    console.log("Gettin data...");
-    let response = await fetch(url);
-    console.log(response)
-    let data = await response.json();
-    console.log(data[0].text)
+const base_url2 = "https://v6.exchangerate-api.com/v6/965a19103494e509fa1e15c1/latest"
+// const base_url = "https://v6.exchangerate-api.com/v6/965a19103494e509fa1e15c1/latest/INR"
 
-    factpara.innerText = data[0].text;
-};
+const dropdowns = document.querySelectorAll(".dropdown select");
+const btn = document.querySelector("from button");
+const fromCurr = document.querySelector(".from select")
+const toCurr = document.querySelector(".to select")
+const msg = document.querySelector(".msg")
 
-/*
-// using promise chain
-function getFacts() {
-    fetch(url).then((response) => {
-        return response.json();
-    }).then((data) => {
-        console.log(data);
-        factpara.innerText = data[0].text;
-
-    })
+for (let select of dropdowns) {
+  for (currCode in countryList) {
+    let newOption = document.createElement("option");
+    newOption.innerText = currCode;
+    newOption.value = currCode;
+    if (select.name === "from" && currCode == "USD") {
+      newOption.selected = "selected";
+    }
+    else if (select.name === "to" && currCode == "INR") {
+      newOption.selected = "selected";
+    }
+    select.append(newOption);
+  }
+  select.addEventListener("change", (evt) => {
+    updataflag(evt.target)
+  })
 }
-*/
 
-// getFacts();
-btn.addEventListener("click", getFacts);
+const updataflag = (element) => {
+  let cuurCode = element.value;
+  let countryCode = countryList[cuurCode]
+  let newSrc = `https://flagsapi.com/${countryCode}/flat/64.png`
+  let img = element.parentElement.querySelector("img");
+  img.src = newSrc;
+}
 
 
-// const url2 = "https://pokeapi.co/api/v2/evolution-chain/1/";
+btn.addEventListener("click", async (evt) => {
+  evt.preventDefault(); // if you click on the button reload the pagge and show some detali in url. it's close this all
+  let amount = document.querySelector(".amount input");
+  let amtVal = amount.value;
+  if (amtVal === "" || amtVal < 1) {
+    amtVal = 1
+    amount.value = "1"
+  }
 
-// const getFacts = async ()=> {
-//     console.log("getting data ....")
-//     const response = await fetch(url2)
-//     console.log(response)
-//     const data=response.json();
-//     console.log(data)
-// }
-// getFacts();
+  // this api not work
+  // console.log(fromCurr.value , toCurr.value.toLowerCase())
+  // const url = `${base_url}/${fromCurr.value.toLowerCase()}/${toCurr.value.toLowerCase()}.json`;
+  // let response = await fetch(url)
+  // console.log(url)
+
+  const url2 = `${base_url2}/${fromCurr.value}`;
+  let response2 = await fetch(url2)
+  let data = await response2.json();
+  let rate = data.conversion_rates;
+  msg.innerText = `${amtVal} ${fromCurr.value} = ${rate[fromCurr.value] * rate[toCurr.value]} ${toCurr.value}`
+
+});
